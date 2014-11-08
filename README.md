@@ -24,7 +24,7 @@ Add redis database configuration into `global_exceptions_handler` section of _re
 ## Usage
 
 Target your browser to `/resque/exceptions/` path of your Rails Application server to view all Exceptions.
-+Truncate all+ deletes all Exceptions by filter if filter is selected or _ALL_ Exceptions otherwise.
+*Truncate all* deletes all Exceptions by filter if filter is selected or _ALL_ Exceptions otherwise.
 
 If `rescue_from` is used in your application, add following line at top of the method specified to `with:` parameter of resque_from helper.
 
