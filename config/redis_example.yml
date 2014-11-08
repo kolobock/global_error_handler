@@ -1,0 +1,38 @@
+development:
+  main: &dev_main
+    db: "1"
+    host: localhost
+    port: 6379
+    password:
+
+  global_exception_handler: &dev_global_exception_handler
+    db: "3"
+    host: localhost
+    port: 6379
+    password:
+
+test:
+  main:
+    <<: *dev_main
+
+  global_exception_handler:
+    <<: *dev_global_exception_handler
+
+production:
+  main: &main
+    db: '0'
+    host: localhost
+    port: 6379
+    password:
+
+  global_exception_handler: &global_exception_handler
+    db: '2'
+    host: localhost
+    port: 6379
+    password:
+
+staging:
+  main:
+    <<: *main
+  global_exception_handler:
+    <<: *global_exception_handler

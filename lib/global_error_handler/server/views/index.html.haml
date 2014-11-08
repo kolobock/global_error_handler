@@ -1,0 +1,45 @@
+- filter_suffix = "filter by Error #{params[:filter_by].capitalize}: #{get_filter}" if params[:filter_by]
+%h1 App Exceptions
+%p.sub #{filter_suffix}
+#app_exceptions
+  .commands
+    %ul
+      %li= link_to 'Delete selected', exception_path('delete', params[:start], params[:filter_by], params[:filter]),
+        method: :delete, class: 'js-link',
+        data: {confirm: 'Are you sure to delete selected Exceptions?', get_ids: true}
+      %li= link_to 'Truncate all', exceptions_path(nil, params[:filter_by], params[:filter]) + '/truncate',
+        method: :delete, class: 'js-link',
+        data: {confirm: 'Are you sure to truncate ALL the Exceptions?'}
+      %li.filter= select_tag 'filter_by_message', options_for_select(@all_messages, params[:filter_by].to_s.eql?('message') ? get_filter : nil), prompt: 'Error Message Filter',
+        class: 'filter-by', data: {field: 'message'}
+      %li.filter= select_tag 'filter_by_class', options_for_select(@all_classes, params[:filter_by].to_s.eql?('class') ? get_filter : nil), prompt: 'Error Class Filter',
+        class: 'filter-by', data: {field: 'class'}
+
+  %p.sub
+    Showing #{apps_start_at} to #{apps_end_at} of
+    %b #{apps_size}
+    exceptions
+
+  %table
+    %thead
+      %tr
+        %th= check_box_tag nil, nil, false, class: 'select-all-exceptions'
+        %th Timestamp
+        %th Error Class
+        %th Error Message
+        %th Error Trace
+        %th
+    %tbody
+      - each_app_exception do |app_exception|
+        %tr
+          %td= check_box_tag 'app_exception_delete_ids[]', app_exception.id, false, class: 'select-exception', id: "select-exception-#{app_exception.id}"
+          %td= link_to app_exception.timestamp, exception_path(app_exception.id)
+          %td= link_to app_exception.error_class, exception_path(app_exception.id)
+          %td= simple_format app_exception.error_message
+          %td= simple_format app_exception.error_trace.try(:split, "\n").try(:[], 0..4).try(:join, "\n")
+          %td= link_to 'Delete', exception_path(app_exception.id, params[:start], params[:filter_by], params[:filter]), method: :delete,
+            data: {confirm: 'Are you sure to remove an Exception?'}, class: 'js-link'
+  %p.pagination= pagination(start: apps_start_at - 1, total: apps_size)
+%script{type: 'text/javascript', src: '/resque/exceptions?js=global_error_handler.js'}
+%link{type: 'text/css', href: '/resque/style.css', rel: 'stylesheet'}
+%link{type: 'text/css', href: '/resque/exceptions?css=global_error_handler.css', rel: 'stylesheet'}

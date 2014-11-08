@@ -1,0 +1,8 @@
+.commands li { display: inline-block; }
+.commands li.filter {
+  float: right;
+}
+
+.commands li.filter select {
+  max-width: 300px;
+}

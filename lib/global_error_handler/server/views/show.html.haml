@@ -1,0 +1,28 @@
+%h1 #{@app_exception.error_class} at #{@app_exception.timestamp} details
+
+%table
+  %tr
+    %th Message:
+    %td= simple_format @app_exception.error_message
+  %tr
+    %th Trace:
+    %td= simple_format @app_exception.error_trace
+  %tr
+    %th Request method:
+    %td= @app_exception.request_method
+  %tr
+    %th Request parameters:
+    %td= simple_format @app_exception.request_params
+  %tr
+    %th Target URL:
+    %td= simple_format @app_exception.target_url
+  %tr
+    %th Referer:
+    %td= simple_format @app_exception.referer_url
+  %tr
+    %th User Agent:
+    %td= simple_format @app_exception.user_agent
+  %tr
+    %th User Info:
+    %td= simple_format @app_exception.user_info
+
