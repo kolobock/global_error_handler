@@ -6,10 +6,9 @@ It adds Exceptions tab to Redis Web server in case to view, filter, delete or tr
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-  - [Path location](#path-location)
+  - [Exceptions tab](#exceptions-tab)
   - [Truncate / Delete](#truncatedelete-functionality)
   - [RescueFrom](#rescue_from)
-  - [Filters](#filters)
 - [Data structure](#data-structure)
 - [Contributing](#contributing)
 
@@ -33,15 +32,21 @@ Add redis database configuration into `global_exceptions_handler` section of _re
 
 ## Usage
 
-### Path location
+### Exceptions tab
+#### Index page
 Target your browser to `/resque/exceptions/` path of your Rails Application server to view all Exceptions.
+#### Filters
+There are two types of filtering: by Error Class and Error Message.
+Select any `Error Class Filter` or `Error Message Filter` from drop-down to view filtered exceptions.
+#### Show
+Click on `Timestamp` or `Error Class` hyperlink to view details of the exception.
 
 ### Truncate/Delete functionality
 #### Truncate
 *Truncate all* deletes all Exceptions by filter if filter is selected or _ALL_ Exceptions otherwise.
 #### Delete
 * *Delete* deletes exception from the database.
-* *Delete all* deletes the selected exceptions from the database.
+* *Delete selected* deletes the selected exceptions from the database. Clicking on the table caption checkbox selects/deselects the list.
 
 ### rescue_from
 If `rescue_from` is used in your application, add following line at top of the method specified to `with:` parameter of resque_from helper.
@@ -49,9 +54,6 @@ If `rescue_from` is used in your application, add following line at top of the m
 ```ruby
 GlobalErrorHandler::Handler.new(request.env, exception).process_exception!
 ```
-
-### Filters
-There are two types of filtering: by Error Class and Error Message.
 
 ## Data structure
 Redis database data structure contains following below keys:
