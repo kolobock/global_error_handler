@@ -3,6 +3,15 @@
 GlobalErrorHandler catches application exceptions on the middleware level and store them into the redis database.
 It adds Exceptions tab to Redis Web server in case to view, filter, delete or truncate them.
 
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Path location](#path-location)
+  - [Truncate / Delete](#truncatedelete-functionality)
+  - [RescueFrom](#rescue_from)
+  - [Filters](#filters)
+- [Contributing](#contributing)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -23,14 +32,21 @@ Add redis database configuration into `global_exceptions_handler` section of _re
 
 ## Usage
 
+### Path location
 Target your browser to `/resque/exceptions/` path of your Rails Application server to view all Exceptions.
+
+### Truncate/Delete functionality
 *Truncate all* deletes all Exceptions by filter if filter is selected or _ALL_ Exceptions otherwise.
 
+### rescue_from
 If `rescue_from` is used in your application, add following line at top of the method specified to `with:` parameter of resque_from helper.
 
 ```ruby
 GlobalErrorHandler::Handler.new(request.env, exception).process_exception!
 ```
+
+### Filters
+There are two types of filtering: by Error Class and Error Message.
 
 ## Contributing
 
