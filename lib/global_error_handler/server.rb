@@ -72,7 +72,7 @@ module GlobalErrorHandler
         def geh_public_view(filename, dir='')
           file = File.join(GEH_PUBLIC_PATH, dir, filename)
           begin
-            cache_control :public, :max_age => 1800
+            cache_control :public, max_age: 1800
             send_file file
           rescue Errno::ENOENT
             404
@@ -131,39 +131,39 @@ module GlobalErrorHandler
 
           markup = ""
           if start - per_page >= 0
-            markup << link_to(raw("&laquo; less"), exceptions_path(start - per_page), :class => 'btn less')
+            markup << link_to(raw("&laquo; less"), exceptions_path(start - per_page), class: 'btn less')
           elsif start > 0 && start < per_page
-            markup << link_to(raw("&laquo; less"), exceptions_path(0), :class => 'btn less')
+            markup << link_to(raw("&laquo; less"), exceptions_path(0), class: 'btn less')
           end
 
           markup << pages_markup(start, per_page, total)
 
           if start + per_page < total
-            markup << link_to(raw("more &raquo;"), exceptions_path(start + per_page), :class => 'btn more')
+            markup << link_to(raw("more &raquo;"), exceptions_path(start + per_page), class: 'btn more')
           end
           markup
         end
 
         def pages_markup(start, per_page, total)
-          pages_count = ((total - 1)/ per_page).ceil
+          pages_count = ((total - 1) / per_page).ceil
           return '' if pages_count < 1
 
           left_ind = start / per_page
           markups = [left_ind.to_s]
           while (left_ind -= 1) >= 0 && (start/per_page - left_ind <= max_side_links || pages_count < max_links)
-            markups.unshift link_to(left_ind, exceptions_path(left_ind * per_page, params[:filter_by], params[:filter]), :class => 'btn pages')
+            markups.unshift link_to(left_ind, exceptions_path(left_ind * per_page, params[:filter_by], params[:filter]), class: 'btn pages')
           end
           right_ind = start / per_page
           if right_ind > max_side_links && pages_count >= max_links
             markups.unshift '...' if right_ind - max_side_links > 1
-            markups.unshift link_to(0, exceptions_path(0, params[:filter_by], params[:filter]), :class => 'btn pages')
+            markups.unshift link_to(0, exceptions_path(0, params[:filter_by], params[:filter]), class: 'btn pages')
           end
           while (right_ind +=1) * per_page < total && (right_ind - start / per_page <= max_side_links || pages_count < max_links)
-            markups.push link_to(right_ind, exceptions_path(per_page * right_ind, params[:filter_by], params[:filter]), :class => 'btn pages')
+            markups.push link_to(right_ind, exceptions_path(per_page * right_ind, params[:filter_by], params[:filter]), class: 'btn pages')
           end
           if pages_count >= max_links && pages_count >= right_ind
             markups.push '...' if pages_count - right_ind >= 1
-            markups.push link_to(pages_count, exceptions_path(pages_count * per_page, params[:filter_by], params[:filter]), :class => 'btn pages')
+            markups.push link_to(pages_count, exceptions_path(pages_count * per_page, params[:filter_by], params[:filter]), class: 'btn pages')
           end
           markups.join(' ')
         end

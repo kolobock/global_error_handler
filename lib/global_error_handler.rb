@@ -12,7 +12,7 @@ require 'global_error_handler/redis'
 require 'global_error_handler/parser'
 require 'global_error_handler/handler'
 require 'global_error_handler/app_exception'
-require 'global_error_handler/global_error_handler'
+require 'global_error_handler/server'
 
 require 'global_error_handler/middleware'
 require 'global_error_handler/rails' if defined? Rails::Railtie
