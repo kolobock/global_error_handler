@@ -37,8 +37,12 @@ class GlobalErrorHandler::AppException
     def truncate(filter = nil, opts = {})
       if filter
         field = opts.delete(:field)
-        ids = filtered_ids_by field, filter
-        delete_all ids
+        total = opts.delete(:total) || 1000
+        size = 1000
+        (total / size.to_f).ceil.times do |iteration|
+          ids = filtered_ids_by field, filter, size, iteration
+          delete_all ids unless ids.blank?
+        end
       else
         GlobalErrorHandler::Redis.truncate!
       end
@@ -53,8 +57,8 @@ class GlobalErrorHandler::AppException
       end
     end
 
-    def filtered_ids_by(field, str)
-      GlobalErrorHandler::Redis.filter_exception_keys 0, "error_#{field}", str, len
+    def filtered_ids_by(field, str, len=1000, page=0)
+      GlobalErrorHandler::Redis.filter_exception_keys page, "error_#{field}", str, len
       return [] if keys.blank?
       keys.map{ |key| key.split(':').last rescue nil }.compact
     end

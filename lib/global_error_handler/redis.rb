@@ -10,7 +10,7 @@ class GlobalErrorHandler::Redis
       redis.hmset redis_key, info_hash.merge(id: current_id).to_a.flatten
       redis.rpush EXCEPTIONS_REDIS_KEY, redis_key
       %w(error_class error_message).each do |field|
-        redis.rpush filter_key(field, info_hash[field.to_sym]), redis_key
+        redis.rpush filter_key(field, build_filter_value(info_hash[field.to_sym])), redis_key
       end
     end
 
@@ -94,6 +94,12 @@ class GlobalErrorHandler::Redis
           redis.lrem filter_key, 1, key
         end
       end
+    end
+
+    private
+
+    def build_filter_value(txt)
+      txt.split("\n").first rescue ''
     end
   end
 end

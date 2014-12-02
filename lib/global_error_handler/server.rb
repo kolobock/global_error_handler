@@ -57,7 +57,7 @@ module GlobalErrorHandler
         end
 
         def truncate_and_redirect_to_exceptions
-          GlobalErrorHandler::AppException.truncate(get_filter, field: params[:filter_by])
+          GlobalErrorHandler::AppException.truncate(get_filter, field: params[:filter_by], total: apps_size)
           redirect exceptions_path
         end
 
