@@ -58,7 +58,7 @@ class GlobalErrorHandler::AppException
     end
 
     def filtered_ids_by(field, str, len=1000, page=0)
-      GlobalErrorHandler::Redis.filter_exception_keys page, "error_#{field}", str, len
+      keys = GlobalErrorHandler::Redis.filter_exception_keys page, "error_#{field}", str, len
       return [] if keys.blank?
       keys.map{ |key| key.split(':').last rescue nil }.compact
     end
