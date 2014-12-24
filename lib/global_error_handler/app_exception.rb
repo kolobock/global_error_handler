@@ -1,11 +1,11 @@
 class GlobalErrorHandler::AppException
   class << self
-    def all(page, field = nil, filter = nil)
-      page ||= 0
+    def all(start, field = nil, filter = nil)
+      start ||= 0
       if field && filter
-        keys = GlobalErrorHandler::Redis.filter_exception_keys page, "error_#{field}", filter
+        keys = GlobalErrorHandler::Redis.filter_exception_keys start, "error_#{field}", filter
       else
-        keys = GlobalErrorHandler::Redis.exception_keys page
+        keys = GlobalErrorHandler::Redis.exception_keys start
       end
       GlobalErrorHandler::Redis.find_all keys
     end
@@ -57,8 +57,8 @@ class GlobalErrorHandler::AppException
       end
     end
 
-    def filtered_ids_by(field, str, len=1000, page=0)
-      keys = GlobalErrorHandler::Redis.filter_exception_keys page, "error_#{field}", str, len
+    def filtered_ids_by(field, str, len=1000, start=0)
+      keys = GlobalErrorHandler::Redis.filter_exception_keys start, "error_#{field}", str, len
       return [] if keys.blank?
       keys.map{ |key| key.split(':').last rescue nil }.compact
     end

@@ -3,6 +3,7 @@ class GlobalErrorHandler::Redis
   EXCEPTIONS_REDIS_KEY = 'global_error_handler:exceptions'
   EXCEPTION_KEY_PREFIX = 'global_error_handler:exception'
   FILTER_KEY_PREFIX    = 'global_error_handler:filter'
+  FILTER_MAX_CHARS     = 60
 
   class << self
     def store(info_hash)
@@ -40,16 +41,16 @@ class GlobalErrorHandler::Redis
       redis.llen filter_key(field, filter)
     end
 
-    def exception_keys(page = 0, per_page = 10)
-      redis.lrange EXCEPTIONS_REDIS_KEY, page.to_i, per_page.to_i + page.to_i - 1
+    def exception_keys(start = 0, per_page = 10)
+      redis.lrange EXCEPTIONS_REDIS_KEY, start.to_i, per_page.to_i + start.to_i - 1
     end
 
-    def filter_exception_keys(page = 0, field = nil, filter = nil, per_page = 10)
-      redis.lrange filter_key(field, filter), page.to_i, per_page.to_i + page.to_i - 1
+    def filter_exception_keys(start = 0, field = nil, filter = nil, per_page = 10)
+      redis.lrange filter_key(field, filter), start.to_i, per_page.to_i + start.to_i - 1
     end
 
-    def filter_keys_for(field)
-      redis.keys filter_key(field, '*')
+    def filter_keys_for(field, filter = '')
+      redis.keys filter_key(field, "#{filter}*")
     end
 
     def find(key)
@@ -90,7 +91,8 @@ class GlobalErrorHandler::Redis
 
     def clear_filters(key)
       %w(error_class error_message).each do |field|
-        filter_keys_for(field).each do |filter_key|
+        field_value = build_filter_value(find(key)[field.to_sym])
+        filter_keys_for(field, field_value).each do |filter_key|
           redis.lrem filter_key, 1, key
         end
       end
@@ -99,7 +101,8 @@ class GlobalErrorHandler::Redis
     private
 
     def build_filter_value(txt)
-      txt.split("\n").first rescue ''
+      str = txt.split("\n").first rescue ''
+      str[0...FILTER_MAX_CHARS]
     end
   end
 end
