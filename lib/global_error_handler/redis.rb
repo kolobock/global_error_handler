@@ -90,8 +90,9 @@ class GlobalErrorHandler::Redis
     end
 
     def clear_filters(key)
+      key_hash = find(key)
       %w(error_class error_message).each do |field|
-        field_value = build_filter_value(find(key)[field.to_sym])
+        field_value = build_filter_value(key_hash[field.to_sym])
         filter_keys_for(field, field_value).each do |filter_key|
           redis.lrem filter_key, 1, key
         end
