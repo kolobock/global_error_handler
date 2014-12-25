@@ -55,6 +55,14 @@ If `rescue_from` is used in your application, add following line at top of the m
 GlobalErrorHandler::Handler.new(request.env, exception).process_exception!
 ```
 
+### Subscribe to expired key notifications
+Following command should run on your server in case to automatically clear filters on deleting keys from redis due to expiration.
+Default expiration time is set to 4 weeks (`GlobalErrorHandler::Redis::REDIS_TTL`)
+
+```ruby
+GlobalErrorHandler::RedisNotificationSubscriber.subscribe_to_expiration
+```
+
 ## Data structure
 Redis database data structure contains following below keys:
 - 'global_error_handler:current_id' : *STRING* - stores current id of an exception. It is being incremented on adding new exception into database

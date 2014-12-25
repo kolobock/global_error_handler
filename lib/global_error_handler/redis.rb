@@ -61,7 +61,7 @@ class GlobalErrorHandler::Redis
     end
 
     def find_all(keys)
-      keys.map { |key| find(key) }
+      keys.map { |key| find(key) }.compact
     end
 
     def delete(key)

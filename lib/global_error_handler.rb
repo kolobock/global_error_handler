@@ -19,4 +19,6 @@ require 'global_error_handler/rails' if defined? Rails::Railtie
 
 require "global_error_handler/version"
 
+require 'global_error_handler/redis_notification_subscriber'
+
 Resque::Server.register GlobalErrorHandler::Server
