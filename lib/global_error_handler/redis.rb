@@ -3,16 +3,19 @@ class GlobalErrorHandler::Redis
   EXCEPTIONS_REDIS_KEY = 'global_error_handler:exceptions'
   EXCEPTION_KEY_PREFIX = 'global_error_handler:exception'
   FILTER_KEY_PREFIX    = 'global_error_handler:filter'
+  FILTER_FIELDS        = %w(error_class error_message)
   FILTER_MAX_CHARS     = 60
+  REDIS_TTL            = 4 * 7 * 24 * 60 * 60 # 4 weeks
 
   class << self
     def store(info_hash)
       redis_key = exception_key(next_id!)
       redis.hmset redis_key, info_hash.merge(id: current_id).to_a.flatten
       redis.rpush EXCEPTIONS_REDIS_KEY, redis_key
-      %w(error_class error_message).each do |field|
+      FILTER_FIELDS.each do |field|
         redis.rpush filter_key(field, build_filter_value(info_hash[field.to_sym])), redis_key
       end
+      redis.expire redis_key, REDIS_TTL
     end
 
     def redis
@@ -62,8 +65,7 @@ class GlobalErrorHandler::Redis
     end
 
     def delete(key)
-      redis.lrem EXCEPTIONS_REDIS_KEY, 1, key
-      clear_filters key
+      delete_dependencies key
       redis.del key
     end
 
@@ -83,20 +85,24 @@ class GlobalErrorHandler::Redis
       "#{FILTER_KEY_PREFIX}:#{field}:#{filter}"
     end
 
-    protected
-
-    def next_id!
-      redis.incr(CURRENT_ID_KEY)
+    def delete_dependencies(key)
+      redis.lrem EXCEPTIONS_REDIS_KEY, 1, key
+      clear_filters key
     end
 
     def clear_filters(key)
-      key_hash = find(key)
-      %w(error_class error_message).each do |field|
-        field_value = build_filter_value(key_hash[field.to_sym])
+      FILTER_FIELDS.each do |field|
+        field_value = build_filter_value(redis.hget key, field)
         filter_keys_for(field, field_value).each do |filter_key|
           redis.lrem filter_key, 1, key
         end
       end
+    end
+
+    protected
+
+    def next_id!
+      redis.incr(CURRENT_ID_KEY)
     end
 
     private
