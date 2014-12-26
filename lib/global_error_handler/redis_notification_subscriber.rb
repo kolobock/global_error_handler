@@ -35,6 +35,8 @@ class GlobalErrorHandler::RedisNotificationSubscriber
       rescue Interrupt => error
         puts "##{Process.pid}: unsubscribing..."
         unsubscribe!
+        redis.quit
+        redis.client.reconnect
       end
     end
 
