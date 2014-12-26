@@ -6,7 +6,7 @@ class GlobalErrorHandler::Railtie < Rails::Railtie
   end
 
   rake_tasks do
-    load "lib/tasks/global_error_handler.rake"
+    load File.join(File.dirname(__FILE__), '..', 'tasks', 'global_error_handler.rake')
   end
 
   def insert_middleware
