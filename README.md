@@ -9,7 +9,7 @@ It adds Exceptions tab to Redis Web server in case to view, filter, delete or tr
   - [Exceptions tab](#exceptions-tab)
   - [Truncate / Delete](#truncatedelete-functionality)
   - [RescueFrom](#rescue_from)
-  - [Subscribe to Redis notifications](#subscribe-to-expired-key-notifications)
+  - [Subscribe to Redis notifications](#subscribe-to-redis-notifications)
 - [Data structure](#data-structure)
 - [Contributing](#contributing)
 
@@ -56,7 +56,7 @@ If `rescue_from` is used in your application, add following line at top of the m
 GlobalErrorHandler::Handler.new(request.env, exception).process_exception!
 ```
 
-### Subscribe to expired key notifications
+### Subscribe to Redis notifications
 Following command should run on your server in case to automatically clear filters on deleting keys from redis due to expiration.
 Default expiration time is set to 4 weeks (`GlobalErrorHandler::Redis::REDIS_TTL`)
 
