@@ -60,7 +60,7 @@ Following command should run on your server in case to automatically clear filte
 Default expiration time is set to 4 weeks (`GlobalErrorHandler::Redis::REDIS_TTL`)
 
 ```ruby
-GlobalErrorHandler::RedisNotificationSubscriber.subscribe_to_expiration
+GlobalErrorHandler::RedisNotificationSubscriber.subscribe!
 ```
 
 ## Data structure
