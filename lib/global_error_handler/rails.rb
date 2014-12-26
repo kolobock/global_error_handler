@@ -1,6 +1,12 @@
 class GlobalErrorHandler::Railtie < Rails::Railtie
+  railtie_name :global_error_handler
+
   initializer 'global_error_handler.configure_rails_initialization' do
     insert_middleware
+  end
+
+  rake_tasks do
+    load "lib/tasks/global_error_handler.rake"
   end
 
   def insert_middleware
