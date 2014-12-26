@@ -9,6 +9,7 @@ It adds Exceptions tab to Redis Web server in case to view, filter, delete or tr
   - [Exceptions tab](#exceptions-tab)
   - [Truncate / Delete](#truncatedelete-functionality)
   - [RescueFrom](#rescue_from)
+  - [Subscribe to Redis notifications](#subscribe-to-expired-key-notifications)
 - [Data structure](#data-structure)
 - [Contributing](#contributing)
 
