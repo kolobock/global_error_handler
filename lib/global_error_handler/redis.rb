@@ -118,7 +118,7 @@ class GlobalErrorHandler::Redis
         exception_keys_to_be_cleaned_up = []
         valid_chunks_count = 0
         cleanup_count = exception_keys_to_be_cleaned_up.size
-        while total_exceptions_count >= start + per_page
+        while total_exceptions_count > start
           exception_keys(start, per_page).each do |redis_key|
             exception_keys_to_be_cleaned_up.push redis_key unless redis.exists(redis_key)
           end
