@@ -101,7 +101,7 @@ class GlobalErrorHandler::Redis
           end
         rescue
           field_value = ''
-          retry if retry_count += 1 < 2
+          retry if (retry_count += 1) < 2
         end
       end
     end
