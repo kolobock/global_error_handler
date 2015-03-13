@@ -126,6 +126,7 @@ class GlobalErrorHandler::Redis
             valid_chunks_count += 1
           end
           break if valid_chunks_count > 3 #if three ranges in a row are consistent, treat database consistency and finish looping
+          start += per_page
         end
 
         puts "*** found #{exception_keys_to_be_cleaned_up.count} broken dependency keys."
