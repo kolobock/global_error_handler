@@ -87,6 +87,7 @@ class GlobalErrorHandler::Redis
     end
 
     def delete_dependencies(key)
+      puts "*** key: #{key.inspect}, class: #{key.class}"
       redis.lrem EXCEPTIONS_REDIS_KEY, 1, key
       clear_filters key
     end
