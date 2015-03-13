@@ -9,6 +9,7 @@ class GlobalErrorHandler::Redis
 
   class << self
     def store(info_hash)
+      return if info_hash.blank?
       redis_key = exception_key(next_id!)
       redis.hmset redis_key, info_hash.merge(id: current_id).to_a.flatten
       redis.rpush EXCEPTIONS_REDIS_KEY, redis_key
@@ -92,10 +93,45 @@ class GlobalErrorHandler::Redis
 
     def clear_filters(key)
       FILTER_FIELDS.each do |field|
+        retry_count = 0
         field_value = build_filter_value(redis.hget key, field)
-        filter_keys_for(field, field_value).each do |filter_key|
-          redis.lrem filter_key, 1, key
+        begin
+          filter_keys_for(field, field_value).each do |filter_key|
+            redis.lrem filter_key, 1, key
+          end
+        rescue
+          field_value = ''
+          retry if retry_count += 1 < 2
         end
+      end
+    end
+
+    def cleanup_database_dependencies!
+      total_exceptions_count = exceptions_count
+      total_exception_keys_count = redis.keys(exception_key('*')).size
+      if total_exceptions_count > total_exception_keys_count
+        puts "==> Database dependency is broken. Need to fix it!"
+        start = 0
+        per_page = 500
+        exception_keys_to_be_cleaned_up = []
+        valid_chunks_count = 0
+        cleanup_count = exception_keys_to_be_cleaned_up.size
+        while total_exceptions_count >= start + per_page
+          exception_keys(start, per_page).each do |redis_key|
+            exception_keys_to_be_cleaned_up.push redis_key unless redis.exists(redis_key)
+          end
+          if cleanup_count == (cleanup_count = exception_keys_to_be_cleaned_up.size)
+            valid_chunks_count += 1
+          end
+          break if valid_chunks_count > 3 #if three ranges in a row are consistent, treat database consistency and finish looping
+        end
+
+        puts "*** found #{exception_keys_to_be_cleaned_up.count} broken dependency keys."
+        exception_keys_to_be_cleaned_up.each do |redis_key|
+          delete_dependencies(redis_key) rescue next
+        end
+      else
+        puts "==> Database dependency is OK. No need to fix it!"
       end
     end
 

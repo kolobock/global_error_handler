@@ -11,7 +11,7 @@ namespace :global_error_handler do
   end
 
   desc 'Unsubscribe from expired keyevent notifications'
-  task :unsubscribe_from_expired do
+  task unsubscribe_from_expired: :environment do
     puts '*** pid file does not exist!' or next unless File.exists?(pid_file)
     process_id = File.read(pid_file).to_i
     begin
@@ -27,6 +27,13 @@ namespace :global_error_handler do
     ensure
       File.unlink pid_file rescue nil
     end
+  end
+
+  desc 'Clean database dependencies for exception keys'
+  task cleanup_database_dependencies: :environment do
+    puts '** starting CleanUp process...'
+    GlobalErrorHandler::Redis.cleanup_database_dependencies!
+    puts '** completed CleanUp process.'
   end
 
   def pid_file
