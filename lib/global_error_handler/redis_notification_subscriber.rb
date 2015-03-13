@@ -3,14 +3,14 @@ require 'global_error_handler/redis'
 class GlobalErrorHandler::RedisNotificationSubscriber
   class << self
     def unsubscribe!
-      redis.unsubscribe(sub_channel) rescue nil
+      lredis.unsubscribe(sub_channel) rescue nil
     end
 
     def subscribe!
       check_redis_config
       begin
         raise SubscriptionError, "wont subscribe to ##{sub_channel}. Someone already listening to this channel" if subscribers_count > 0
-        redis.subscribe(sub_channel) do |on|
+        lredis.subscribe(sub_channel) do |on|
           puts "*** ##{Process.pid}: Listeting for the notifications on ##{sub_channel}..."
           on.message do |channel, key|
             puts "**** ##{channel}: #{key}"
@@ -35,17 +35,17 @@ class GlobalErrorHandler::RedisNotificationSubscriber
       rescue Interrupt => error
         puts "##{Process.pid}: unsubscribing..."
         unsubscribe!
-        redis.quit
-        redis.client.reconnect
+        lredis.quit
+        lredis.client.reconnect
       end
     end
 
-    def redis
+    def lredis
       GlobalErrorHandler::Redis.redis
     end
 
     def sub_channel
-      @sub_channel ||= "__keyevent@#{self.redis.client.db}__:expired"
+      @sub_channel ||= "__keyevent@#{self.lredis.client.db}__:expired"
     end
 
     def check_redis_config
@@ -54,11 +54,11 @@ class GlobalErrorHandler::RedisNotificationSubscriber
       # A     Alias for g$lshzxe, so that the "AKE" string means all the events.
       # E     Keyevent events, published with __keyevent@<db>__ prefix.
       ### AE|gE|xE|AKE|gKE|xKE
-      redis.config('set', 'notify-keyspace-events', 'xE') unless redis.config('get', 'notify-keyspace-events').last =~ /[Agx]+.?E/
+      lredis.config('set', 'notify-keyspace-events', 'xE') unless lredis.config('get', 'notify-keyspace-events').last =~ /[Agx]+.?E/
     end
 
     def subscribers_count
-      redis.publish sub_channel, "check subscribers count from ##{Process.pid}"
+      lredis.publish sub_channel, "check subscribers count from ##{Process.pid}"
     end
   end # class << self
 
