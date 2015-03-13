@@ -41,7 +41,7 @@ class GlobalErrorHandler::RedisNotificationSubscriber
     end
 
     def redis
-      @redis ||= initialize_redis_from_config
+      @redis ||= GlobalErrorHandler::Redis.initialize_redis_from_config
     end
 
     def sub_channel
