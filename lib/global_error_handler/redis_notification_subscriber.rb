@@ -41,10 +41,7 @@ class GlobalErrorHandler::RedisNotificationSubscriber
     end
 
     def redis
-      @redis ||= begin
-                   redis_config = YAML.load_file(File.join(Rails.root, 'config', 'redis.yml'))[Rails.env]
-                   Redis.new(redis_config['global_exception_handler'])
-                 end
+      @redis ||= initialize_redis_from_config
     end
 
     def sub_channel

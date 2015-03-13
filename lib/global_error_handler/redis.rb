@@ -19,12 +19,14 @@ class GlobalErrorHandler::Redis
       redis.expire redis_key, REDIS_TTL
     end
 
+    def initialize_redis_from_config #:nodoc:
+      redis_config = YAML.load_file(File.join(Rails.root, 'config', 'redis.yml'))[Rails.env]
+      Redis.new(redis_config['global_exception_handler'])
+    end
+
     def redis
       @redis ||= begin
-                   unless $redis_global_exception_handler.is_a? Redis
-                     redis_config = YAML.load_file(File.join(Rails.root, 'config', 'redis.yml'))[Rails.env]
-                     $redis_global_exception_handler = Redis.new(redis_config['global_exception_handler'])
-                   end
+                   $redis_global_exception_handler = initialize_redis_from_config unless $redis_global_exception_handler.is_a? Redis
                    $redis_global_exception_handler
                  end
     end
@@ -87,7 +89,6 @@ class GlobalErrorHandler::Redis
     end
 
     def delete_dependencies(key)
-      puts "*** key: #{key.inspect}, class: #{key.class}"
       redis.lrem EXCEPTIONS_REDIS_KEY, 1, key
       clear_filters key
     end
