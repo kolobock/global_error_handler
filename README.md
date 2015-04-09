@@ -70,10 +70,19 @@ In case to stop subscription, run following below command
 rake global_error_handler:unsubscribe_from_expired
 ```
 
-In case to subscribe automatically after being deployed, there is a Capistrano recipe that run after `deploy:restart`
+There are Capistrano recipes that run desired rake tasks on the remote server
+* global_error_handler:subscribe
+* global_error_handler:unsubscribe
+* global_error_handler:update_subscription
 
 ```ruby
-cap global_error_handler:update_subscription
+after 'deploy:restart', 'global_error_handler:update_subscription'
+```
+
+In case to subscribe automatically after being deployed, add following require into `deploy.rb`
+
+```ruby
+require 'global_error_handler/capistrano_recipes'
 ```
 
 ## Data structure
