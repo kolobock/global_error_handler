@@ -72,7 +72,7 @@ rake global_error_handler:unsubscribe_from_expired
 
 In case to subscribe automatically after being deployed, there is a Capistrano recipe that run after `deploy:restart`
 
-``ruby`
+```ruby
 cap global_error_handler:update_subscription
 ```
 
