@@ -70,6 +70,12 @@ In case to stop subscription, run following below command
 rake global_error_handler:unsubscribe_from_expired
 ```
 
+In case to subscribe automatically after being deployed, there is a Capistrano recipe that run after `deploy:restart`
+
+``ruby`
+cap global_error_handler:update_subscription
+```
+
 ## Data structure
 Redis database data structure contains following below keys:
 - 'global_error_handler:current_id' : *STRING* - stores current id of an exception. It is being incremented on adding new exception into database
