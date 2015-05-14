@@ -128,6 +128,7 @@ Redis database data structure contains following below keys:
   - user_info - IP Address information
   - timestamp - time when exception was raised
 - 'global_error_handler:filter:\<field\>:\<filter\>' : *LIST* - stores exception' keys that are filtered by field and filter. where \<field\>: either `error_class` or `error_message`, \<filter\>: string stored in the appropriated attribute.
+
 ### Database consistency
 To check the database consistency, there is a rake task that will check for filters without the keys assigned with.
 
