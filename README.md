@@ -11,7 +11,9 @@ It adds Exceptions tab to Redis Web server in case to view, filter, delete or tr
   - [RescueFrom](#rescue_from)
   - [Subscribe to Redis notifications](#subscribe-to-redis-notifications)
 - [Data structure](#data-structure)
+  - [Database consistency](#database-consistency)
 - [Contributing](#contributing)
+
 
 ## Installation
 
@@ -27,9 +29,11 @@ Or install it yourself as:
 
     $ gem install global_error_handler
 
+
 ## Configuration
 
 Add redis database configuration into `global_exceptions_handler` section of _redis.yml_. See [redis_example.yml](https://github.com/kolobock/global_error_handler/blob/master/config/redis_example.yml) for more details.
+
 
 ## Usage
 
@@ -57,6 +61,7 @@ GlobalErrorHandler::Handler.new(request.env, exception).process_exception!
 ```
 
 ### Subscribe to Redis notifications
+#### rake tasks
 Following command should run on your server in case to automatically clear filters on deleting keys from redis due to expiration.
 Default expiration time is set to 4 weeks (`GlobalErrorHandler::Redis::REDIS_TTL`)
 
@@ -70,20 +75,41 @@ In case to stop subscription, run following below command
 rake global_error_handler:unsubscribe_from_expired
 ```
 
+#### capistrano tasks
 There are Capistrano recipes that run desired rake tasks on the remote server
 * global_error_handler:subscribe
 * global_error_handler:unsubscribe
 * global_error_handler:update_subscription
 
-```ruby
-after 'deploy:restart', 'global_error_handler:update_subscription'
-```
-
 In case to subscribe automatically after being deployed, add following require into `deploy.rb`
 
 ```ruby
 require 'global_error_handler/capistrano_recipes'
+after 'deploy:restart', 'global_error_handler:update_subscription'
 ```
+
+#### init.d script
+Subscribe to expiration keys should run on system start-up as well after you system has been restarted
+so there is an init.d script to do it. Note that script is for RedHat/CentOS systems only (chkconfig-dependent)!
+
+To generate init.d script run following:
+
+```bash
+cap <RAILS_ENV> global_error_handler:initd:setup
+```
+
+To install init.d script run following:
+
+```bash
+cap <RAILS_ENV> global_error_handler:initd:install
+```
+
+To uninstall init.d script run following:
+
+```bash
+cap <RAILS_ENV> global_error_handler:initd:uninstall
+```
+
 
 ## Data structure
 Redis database data structure contains following below keys:
@@ -102,6 +128,13 @@ Redis database data structure contains following below keys:
   - user_info - IP Address information
   - timestamp - time when exception was raised
 - 'global_error_handler:filter:\<field\>:\<filter\>' : *LIST* - stores exception' keys that are filtered by field and filter. where \<field\>: either `error_class` or `error_message`, \<filter\>: string stored in the appropriated attribute.
+### Database consistency
+To check the database consistency, there is a rake task that will check for filters without the keys assigned with.
+
+```bash
+rake global_error_handler:cleanup_database_dependencies
+```
+
 
 ## Contributing
 

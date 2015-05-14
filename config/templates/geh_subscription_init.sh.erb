@@ -1,0 +1,34 @@
+#!/bin/sh
+# chkconfig: 345 99 15
+# description: script to start <%= application %> geh_subscription
+# /etc/init.d/<%= application %>_geh_subscription
+
+start() {
+  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2"
+  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3"
+}
+
+stop() {
+  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:<%= rvm_bin_path %>; RAILS_ENV=<%= rails_env %> rvm <%= rvm_ruby_string %> do rake global_error_handler:unsubscribe_from_expired"
+}
+
+case "$1" in
+  start)
+    echo "calling ${1} on <%= application %> Global Error Handler Subscription ... "
+    start
+    ;;
+  stop)
+    echo "calling ${1} on <%= application %> Global Error Handler Subscription ... "
+    stop
+    ;;
+  restart)
+    echo "calling ${1} on <%= application %> Global Error Handler Subscription ... "
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
