@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "capistrano", "< 3.0"
 
   spec.add_dependency 'resque', '~> 1.25', '>= 1.25.1'
-  spec.add_dependency 'haml', '~> 4.0', '>= 4.0.5'
+  spec.add_dependency 'haml', '~> 4.0', '>= 4.0.5', '< 4.1'
 end
