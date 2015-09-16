@@ -12,7 +12,7 @@ class GlobalErrorHandler::Parser
   def parse
     @info_hash[:error_class]    = @exception.class.to_s.strip
     @info_hash[:error_message]  = @exception.message.to_s.strip
-    @info_hash[:error_trace]    = @exception.backtrace.join("\n")
+    @info_hash[:error_trace]    = form_backtrace @exception.backtrace
     @info_hash[:request_method] = @request.method
     @info_hash[:request_params] = @request.params
     @info_hash[:target_url]     = @request.url
@@ -37,5 +37,11 @@ class GlobalErrorHandler::Parser
     @request.remote_ip
   rescue => e
     e.message
+  end
+
+  def form_backtrace(backtrace)
+    backtrace.join("\n")
+  rescue
+    ''
   end
 end
