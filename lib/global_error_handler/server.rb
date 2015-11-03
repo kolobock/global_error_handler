@@ -1,5 +1,5 @@
 module GlobalErrorHandler
-  module Server
+  module Server #:nodoc:
     GEH_VIEW_PATH   = File.join(File.dirname(__FILE__), 'server', 'views')
     GEH_PUBLIC_PATH = File.join(File.dirname(__FILE__), 'server', 'public')
 
@@ -18,7 +18,7 @@ module GlobalErrorHandler
       end
 
       app.get '/exceptions/:id' do
-        @app_exception = GlobalErrorHandler::AppException.find(params[:id])
+        @app_exception = AppException.find(params[:id])
         show_view :show
       end
 
@@ -31,33 +31,34 @@ module GlobalErrorHandler
       end
 
       app.delete '/exceptions/delete' do
-        GlobalErrorHandler::AppException.delete_all(params[:app_exception_delete_ids])
+        AppException.delete_all(params[:app_exception_delete_ids])
         redirect_to_exceptions
       end
 
       app.delete '/exceptions/:id' do
-        GlobalErrorHandler::AppException.delete(params[:id])
+        AppException.delete(params[:id])
         redirect_to_exceptions
       end
 
       app.tabs << 'Exceptions'
 
+      require 'action_view'
       app.helpers do
-        include ActionView::Helpers::TextHelper #link_to
-        include ActionView::Helpers::UrlHelper #simple_format
-        include ActionView::Helpers::FormHelper #select_tag check_box_tag
-        include ActionView::Helpers::FormOptionsHelper #options_for_select
-        include ActionView::Helpers::OutputSafetyHelper #delete via ajax
+        include ActionView::Helpers::TextHelper # link_to
+        include ActionView::Helpers::UrlHelper # simple_format
+        include ActionView::Helpers::FormHelper # select_tag check_box_tag
+        include ActionView::Helpers::FormOptionsHelper # options_for_select
+        include ActionView::Helpers::OutputSafetyHelper # delete via ajax
 
         def prepare_and_show_index_action
-          @app_exceptions = GlobalErrorHandler::AppException.all(params[:start], params[:filter_by], get_filter)
-          @all_classes = GlobalErrorHandler::AppException.filters_for('class')
-          @all_messages = GlobalErrorHandler::AppException.filters_for('message')
+          @app_exceptions = AppException.all(params[:start], params[:filter_by], fetch_filter)
+          @all_classes = AppException.filters_for('class')
+          @all_messages = AppException.filters_for('message')
           show_view :index
         end
 
         def truncate_and_redirect_to_exceptions
-          GlobalErrorHandler::AppException.truncate(get_filter, field: params[:filter_by], total: apps_size)
+          AppException.truncate(fetch_filter, field: params[:filter_by], total: apps_size)
           redirect exceptions_path
         end
 
@@ -66,10 +67,10 @@ module GlobalErrorHandler
         end
 
         def show_view(filename = :index)
-          erb haml( File.read(File.join(GEH_VIEW_PATH, "#{filename}.html.haml")) )
+          erb haml(File.read(File.join(GEH_VIEW_PATH, "#{filename}.html.haml")))
         end
 
-        def geh_public_view(filename, dir='')
+        def geh_public_view(filename, dir = '')
           file = File.join(GEH_PUBLIC_PATH, dir, filename)
           begin
             cache_control :public, max_age: 1800
@@ -80,13 +81,13 @@ module GlobalErrorHandler
         end
 
         def exceptions_path(start = nil, filter_by = nil, filter = nil)
-          path = "/resque/exceptions"
+          path = '/resque/exceptions'
           path += "/filter/#{filter_by}/#{URI.escape(filter)}" if filter_by && filter
           path += "?start=#{start}" if start
           path
         end
 
-        def exception_path(id, start=nil, filter_by = nil, filter = nil)
+        def exception_path(id, start = nil, filter_by = nil, filter = nil)
           path = "/resque/exceptions/#{id}"
           path_params = []
           path_params.push "start=#{start}" if start
@@ -96,7 +97,7 @@ module GlobalErrorHandler
         end
 
         def apps_size
-          @apps_size ||= GlobalErrorHandler::AppException.count(params[:filter_by], get_filter).to_i
+          @apps_size ||= AppException.count(params[:filter_by], fetch_filter).to_i
         end
 
         def apps_start_at
@@ -116,7 +117,7 @@ module GlobalErrorHandler
           end
         end
 
-        def each_app_exception(&block)
+        def each_app_exception
           return unless block_given?
           @app_exceptions.try(:each) do |app_exception|
             yield app_exception
@@ -129,17 +130,17 @@ module GlobalErrorHandler
           total    = options[:total] || 0
           return if total < per_page
 
-          markup = ""
+          markup = ''
           if start - per_page >= 0
-            markup << link_to(raw("&laquo; less"), exceptions_path(start - per_page), class: 'btn less')
+            markup << link_to(raw('&laquo; less'), exceptions_path(start - per_page), class: 'btn less')
           elsif start > 0 && start < per_page
-            markup << link_to(raw("&laquo; less"), exceptions_path(0), class: 'btn less')
+            markup << link_to(raw('&laquo; less'), exceptions_path(0), class: 'btn less')
           end
 
           markup << pages_markup(start, per_page, total)
 
           if start + per_page < total
-            markup << link_to(raw("more &raquo;"), exceptions_path(start + per_page), class: 'btn more')
+            markup << link_to(raw('more &raquo;'), exceptions_path(start + per_page), class: 'btn more')
           end
           markup
         end
@@ -150,7 +151,7 @@ module GlobalErrorHandler
 
           left_ind = start / per_page
           markups = [left_ind.to_s]
-          while (left_ind -= 1) >= 0 && (start/per_page - left_ind <= max_side_links || pages_count < max_links)
+          while (left_ind -= 1) >= 0 && (start / per_page - left_ind <= max_side_links || pages_count < max_links)
             markups.unshift link_to(left_ind, exceptions_path(left_ind * per_page, params[:filter_by], params[:filter]), class: 'btn pages')
           end
           right_ind = start / per_page
@@ -158,7 +159,7 @@ module GlobalErrorHandler
             markups.unshift '...' if right_ind - max_side_links > 1
             markups.unshift link_to(0, exceptions_path(0, params[:filter_by], params[:filter]), class: 'btn pages')
           end
-          while (right_ind +=1) * per_page < total && (right_ind - start / per_page <= max_side_links || pages_count < max_links)
+          while (right_ind += 1) * per_page < total && (right_ind - start / per_page <= max_side_links || pages_count < max_links)
             markups.push link_to(right_ind, exceptions_path(per_page * right_ind, params[:filter_by], params[:filter]), class: 'btn pages')
           end
           if pages_count >= max_links && pages_count >= right_ind
@@ -176,7 +177,7 @@ module GlobalErrorHandler
           max_side_links * 2 + 1
         end
 
-        def get_filter
+        def fetch_filter
           URI.unescape(params[:filter]) if params[:filter]
         end
       end

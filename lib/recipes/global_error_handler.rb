@@ -1,17 +1,17 @@
 module GlobalErrorHandler
-  class Capistrano
+  class Capistrano #:nodoc:
     def self.load_into(config)
       config.load do
         namespace :global_error_handler do
           desc 'Subscribe to expiration'
           task :subscribe do
-            run %Q{cd #{current_path} && RAILS_ENV=#{rails_env} nohup rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2}
-            run %Q{cd #{current_path} && RAILS_ENV=#{rails_env} nohup rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3}
+            run %(cd #{current_path} && RAILS_ENV=#{rails_env} nohup rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2)
+            run %(cd #{current_path} && RAILS_ENV=#{rails_env} nohup rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3)
           end
 
           desc 'Unsubscribe from expiration'
           task :unsubscribe do
-            run %Q{cd #{current_path} && RAILS_ENV=#{rails_env} #{rake} global_error_handler:unsubscribe_from_expired}
+            run %(cd #{current_path} && RAILS_ENV=#{rails_env} #{rake} global_error_handler:unsubscribe_from_expired)
           end
 
           desc 'Update Subscription to expiration'

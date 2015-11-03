@@ -10,10 +10,10 @@
       %li= link_to 'Truncate all', exceptions_path(nil, params[:filter_by], params[:filter]) + '/truncate',
         method: :delete, class: 'js-link',
         data: {confirm: 'Are you sure to truncate ALL the Exceptions?'}
-      %li.filter= select_tag 'filter_by_message', options_for_select(@all_messages, params[:filter_by].to_s.eql?('message') ? get_filter : nil), prompt: 'Error Message Filter',
-        class: 'filter-by', data: {field: 'message'}
-      %li.filter= select_tag 'filter_by_class', options_for_select(@all_classes, params[:filter_by].to_s.eql?('class') ? get_filter : nil), prompt: 'Error Class Filter',
-        class: 'filter-by', data: {field: 'class'}
+      %li.filter= select_tag 'filter_by_message', options_for_select(@all_messages, params[:filter_by].to_s.eql?('message') ? get_filter : nil),
+        prompt: 'Error Message Filter', class: 'filter-by', data: {field: 'message'}
+      %li.filter= select_tag 'filter_by_class', options_for_select(@all_classes, params[:filter_by].to_s.eql?('class') ? get_filter : nil),
+        prompt: 'Error Class Filter', class: 'filter-by', data: {field: 'class'}
 
   %p.sub
     Showing #{apps_start_at} to #{apps_end_at} of

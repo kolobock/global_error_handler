@@ -1,3 +1,3 @@
-module GlobalErrorHandler
-  VERSION = "0.3.3"
+module GlobalErrorHandler #:nodoc:
+  VERSION = '1.0.1'
 end

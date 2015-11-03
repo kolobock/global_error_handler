@@ -1,18 +1,22 @@
 namespace :global_error_handler do
   desc 'Subscribe to expired keyevent notifications'
   task subscribe_to_expired: :environment do
-    puts '*** pid file exists!' or next if File.exists?(pid_file)
-    File.open(pid_file, 'w'){|f| f.puts Process.pid}
+    puts('*** pid file exists!') || next if File.exist?(pid_file)
+    File.open(pid_file, 'w') { |f| f.puts Process.pid }
     begin
       GlobalErrorHandler::RedisNotificationSubscriber.subscribe!
     ensure
-      File.unlink pid_file rescue nil
+      begin
+        File.unlink pid_file
+      rescue
+        nil
+      end
     end
   end
 
   desc 'Unsubscribe from expired keyevent notifications'
   task unsubscribe_from_expired: :environment do
-    puts '*** pid file does not exist!' or next unless File.exists?(pid_file)
+    puts('*** pid file does not exist!') || next unless File.exist?(pid_file)
     process_id = File.read(pid_file).to_i
     begin
       Process.kill 0, process_id
@@ -25,7 +29,11 @@ namespace :global_error_handler do
     rescue Errno::ESRCH
       puts "** No such process ##{process_id}. Exiting..."
     ensure
-      File.unlink pid_file rescue nil
+      begin
+        File.unlink pid_file
+      rescue
+        nil
+      end
     end
   end
 
