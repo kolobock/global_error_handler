@@ -21,7 +21,7 @@ module GlobalErrorHandler
       end
 
       def initialize_redis_from_config
-        redis_config = YAML.load_file(File.join(Rails.root, 'config', 'redis.yml'))[Rails.env]
+        redis_config = YAML.load_file(File.join(current_root, 'config', 'redis.yml'))[current_env]
         ::Redis.new(redis_config['global_exception_handler'])
       end
 
@@ -164,6 +164,22 @@ module GlobalErrorHandler
                 ''
               end
         str[0...FILTER_MAX_CHARS]
+      end
+
+      def current_root
+        Rails.root
+      rescue
+        begin
+          settings.root
+        rescue
+          '.'
+        end
+      end
+
+      def current_env
+        Rails.env
+      rescue
+        ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
       end
     end
   end
