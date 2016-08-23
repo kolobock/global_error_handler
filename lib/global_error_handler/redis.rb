@@ -121,7 +121,7 @@ module GlobalErrorHandler
         if total_exceptions_count > total_exception_keys_count
           puts '==> Database dependency is broken. Need to fix it!'
           start = 0
-          per_page = 500
+          per_page = 50
           exception_keys_to_be_cleaned_up = []
           valid_chunks_count = 0
           cleanup_count = exception_keys_to_be_cleaned_up.size
@@ -132,7 +132,7 @@ module GlobalErrorHandler
             if cleanup_count == (cleanup_count = exception_keys_to_be_cleaned_up.size)
               valid_chunks_count += 1
             end
-            break if valid_chunks_count > 3 # if three ranges in a row are consistent, treat database consistency and finish looping
+            break if valid_chunks_count > 2 # if three ranges in a row are consistent, treat database consistency and finish looping
             start += per_page
           end
 
