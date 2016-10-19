@@ -35,7 +35,7 @@ module GlobalErrorHandler
           puts "##{Process.pid}: #{error}, retrying in 1s"
           sleep 1
           retry
-        rescue Interrupt => error
+        rescue Interrupt
           puts "##{Process.pid}: unsubscribing..."
           unsubscribe!
           redis.quit

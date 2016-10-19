@@ -4,12 +4,15 @@
 # /etc/init.d/<%= application %>_geh_subscription
 
 start() {
-  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2"
-  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3"
+  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
+    RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2"
+  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
+    RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3"
 }
 
 stop() {
-  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:<%= rvm_bin_path %>; RAILS_ENV=<%= rails_env %> rvm <%= rvm_ruby_string %> do rake global_error_handler:unsubscribe_from_expired"
+  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:<%= rvm_bin_path %>; \
+    RAILS_ENV=<%= rails_env %> rvm <%= rvm_ruby_string %> do rake global_error_handler:unsubscribe_from_expired"
 }
 
 case "$1" in
