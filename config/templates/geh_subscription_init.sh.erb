@@ -9,6 +9,7 @@ start() {
     kill -0 `cat $pid_file` >/dev/null 2>&1; then
     echo GEH Subscription is already running. Quiting...
   else
+    rm -f $pid_file >/dev/null 2>&1
     echo GEH Subscription is not running. Executing start command...
     su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
       RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2"
