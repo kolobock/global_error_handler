@@ -19,7 +19,7 @@ It adds Exceptions tab to Redis Web server in case to view, filter, delete or tr
 
 Add this line to your application's Gemfile:
 
-    gem 'global_error_handler'
+    gem 'global_error_handler', '~> 1.2.1'
 
 And then execute:
 

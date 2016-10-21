@@ -4,15 +4,47 @@
 # /etc/init.d/<%= application %>_geh_subscription
 
 start() {
-  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
-    RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2"
-  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
-    RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3"
+  pid_file=<%= shared_path %>/pids/global_error_handler_subscription.pid
+  if [ -e "$pid_file" ] && \
+    kill -0 `cat $pid_file` >/dev/null 2>&1; then
+    echo GEH Subscription is already running. Quiting...
+  else
+    echo GEH Subscription is not running. Executing start command...
+    su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
+      RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:cleanup_database_dependencies >/dev/null 2>&1 & sleep 2"
+    su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:/home/<%= user %>/.rvm/bin; \
+      RAILS_ENV=<%= rails_env %> nohup rvm <%= rvm_ruby_string %> do rake global_error_handler:subscribe_to_expired >/dev/null 2>&1 & sleep 3"
+    echo done
+  fi
 }
 
 stop() {
-  su - <%= user %> -c "cd <%= current_path %>; PATH=$PATH:<%= rvm_bin_path %>; \
-    RAILS_ENV=<%= rails_env %> rvm <%= rvm_ruby_string %> do rake global_error_handler:unsubscribe_from_expired"
+  pid_file=<%= shared_path %>/pids/global_error_handler_subscription.pid
+  if [ -e "$pid_file" ] && \
+    kill -0 `cat $pid_file` >/dev/null 2>&1; then
+    echo Stopping GEH Subscription...
+    kill -s INT `cat $pid_file`
+    tries_count=8
+    success=0
+    while [ $((tries_count-=1)) -ge 0 ]; do
+      if [ -e "$pid_file" ] >/dev/null 2>&1; then
+        sleep 1
+      else
+        success=1
+        break
+      fi
+    done
+    if [ $success -eq 0 ]; then
+      echo "killing GEH Subscription process..."
+      kill -s KILL `cat $pid_file`
+      rm -f $pid_file >/dev/null 2>&1
+    else
+      echo GEH Subscription has been stopped successfully.
+    fi
+  else
+    rm -f $pid_file >/dev/null 2>&1
+    echo GEH Subscription is not running.
+  fi
 }
 
 case "$1" in
